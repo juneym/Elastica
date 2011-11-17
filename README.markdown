@@ -1,4 +1,4 @@
-Elastica: elasticsearch PHP Client
+Elastica: elasticsearch PHP Client [![Build Status](https://secure.travis-ci.org/ruflin/Elastica.png)](http://travis-ci.org/ruflin/Elastica)
 ==================================
 
 
@@ -9,7 +9,7 @@ and other PHP frameworks. This makes it easy to use the client in combination wi
 
 With this client I try to model the elasticsearch REST API in an object oriented way which also makes it possible to extend the client and add new types of queries,
 filters, facets, transport layers and more.
-The client uses the [REST API](http://www.elasticsearch.com/docs/elasticsearch/rest_api/) from elasticsearch and tries to
+The client uses the [REST API](http://www.elasticsearch.org/guide/reference/api/) from elasticsearch and tries to
  provide a simple way of accessing the elasticsearch functionality.
 Arguments are passed as arrays which are automatically encoded to JSON which makes it possible to also use not implemented features of the request methods.
 
@@ -75,6 +75,16 @@ File indexing
 File upload is supported but the mapper attachement plugin has to be installed
 
 	./bin/plugin install mapper-attachments
+
+Building API
+-------------
+The API is build automatically from the source code by DocBlox (How to install it: [http://docs.docblox-project.org/Installation.html](http://docs.docblox-project.org/Installation.html))
+
+To create an updated API just run the following in the root in the master branch:
+
+	docblox run
+
+Then move the created folder 'build/api' to the gh-pages branch and push.
 
 Credits
 -------

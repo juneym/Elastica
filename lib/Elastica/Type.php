@@ -46,11 +46,17 @@ class Elastica_Type implements Elastica_Searchable
 		$path = $doc->getId();
 
 		$query = array();
-		if($doc->getVersion() > 0) {
+		
+		if ($doc->getVersion() > 0) {
 			$query['version'] = $doc->getVersion();
 		}
-		if($doc->getParent()) {
+		
+		if ($doc->getParent()) {
 			$query['parent'] = $doc->getParent();
+		}
+		
+		if ($doc->getOpType()) {
+			$query['op_type'] = $doc->getOpType();
 		}
 		if (count($query) > 0) {
 			$path .= '?' . http_build_query($query);
@@ -92,7 +98,12 @@ class Elastica_Type implements Elastica_Searchable
 
 		$result = $this->request($path, Elastica_Request::GET)->getData();
 
-		$document = new Elastica_Document($id, $result['_source'], $this->getType(),  $this->getIndex());
+		if (empty($result['exists'])) {
+			throw new Elastica_Exception_NotFound('doc id ' . $id . ' not found');
+		}
+
+		$data = isset($result['_source'])?$result['_source']:array();
+		$document = new Elastica_Document($id, $data, $this->getType(),  $this->getIndex());
 		$document->setVersion($result['_version']);
 		return $document;
 	}

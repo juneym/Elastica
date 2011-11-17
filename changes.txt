@@ -1,5 +1,43 @@
 CHANGES
 
+2011-11-17
+- Support for Travis CI added: http://travis-ci.org/ruflin/Elastica
+
+2011-11-07
+- Elastica_Index_Stats added
+
+2011-11-05
+- Elastica_Query_Nested added
+
+2011-10-29
+- TTL for document and mapping added
+
+2011-10-28
+- Refactored Elastica_Query_CustomScore::addCSParam to ::addParams
+- Rename Elastica_Query_CustomScore::addParam to ::addCSParam
+- Release v0.18.1.0
+
+2011-10-20
+- Release v0.17.9.0
+- Elastica_Filter_Type added
+
+2011-10-19
+- Elastica_Query_CustomFilterScore added
+
+2011-10-15
+- API Documentation changed to DocBlox
+
+2011-10-10
+- Bug fixing
+- Release v0.17.8.0 added
+
+2011-09-19
+- Release v0.17.7.0 added
+- Release v0.17.6.1 added
+
+2011-09-18
+- Elastica_Exception_ExpectedFieldNotFound renamed to Elastica_Exception_NotFound
+
 2011-08-25
 - Https transport layer added
 

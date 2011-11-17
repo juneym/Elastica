@@ -27,6 +27,11 @@ class Elastica_Document {
 	 * @var string|int Parent document id
 	 */
 	protected $_parent = '';
+	
+	/**
+	 * @var string Optype
+	 */
+	protected $_optype = '';
 
 	/**
 	 * Creates a new document
@@ -129,6 +134,16 @@ class Elastica_Document {
 	}
 
 	/**
+	 * Sets lifetime of document
+	 * 
+	 * @param string $ttl
+	 * @return Elastica_Document
+	 */
+	public function setTTL($ttl) {
+		return $this->add('_ttl', $ttl);
+	}
+	
+	/**
 	 * Returns the document data
 	 *
 	 * @return array Document data
@@ -227,5 +242,48 @@ class Elastica_Document {
 	 */
 	public function getParent() {
 		return $this->_parent;
+	}
+
+	/**
+	 * Set operation type
+	 *
+	 * @param string $optype Only accept create
+	 * @return Elastica_Document Current object
+	 */
+	public function setOpType($optype) {
+		$this->_optype = $optype;
+		return $this;
+	}
+
+	/**
+	 * Get operation type
+	 */
+	public function getOpType() {
+		return $this->_optype;
+	}
+	
+	/**
+	 * Returns the document as an array
+	 * @return array
+	 */
+	public function toArray() {
+		$index = array(
+			'_index' => $this->getIndex(),
+			'_type' => $this->getType(),
+			'_id' => $this->getId()
+		);
+		
+		$version = $this->getVersion();
+		if (!empty($version)) {
+			$index['_version'] = $version;
+		}
+		
+		$parent = $this->getParent();
+		if (!empty($parent)) {
+			$index['_parent'] = $parent;
+		}
+		
+		$params[] = $action;
+		$params[] = $doc->getData();
 	}
 }
