@@ -44,6 +44,7 @@ class Elastica_Client
 		'headers' => array(),
 		'servers' => array(),
 		'roundRobin' => false,
+		'log' => false,
 	);
 
 	/**
@@ -60,7 +61,7 @@ class Elastica_Client
 	 *
 	 * @param array $config Params
 	 */
-	public function setConfig($config) {
+	public function setConfig(array $config) {
 		foreach ($config as $key => $value) {
 			$this->_config[$key] = $value;
 		}
@@ -242,8 +243,8 @@ class Elastica_Client
 	 * Deletes documents with the given ids, index, type from the index
 	 *
 	 * @param array $ids Document ids
-	 * @param string $index Index name
-	 * @param string $type Type of documents
+	 * @param string|Elastica_Index $index Index name
+	 * @param string|Elastica_Type $type Type of documents
 	 * @return Elastica_Response Response object
 	 * @throws Elastica_Exception If ids is empty
 	 * @link http://www.elasticsearch.com/docs/elasticsearch/rest_api/bulk/

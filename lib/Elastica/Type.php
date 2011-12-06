@@ -20,19 +20,19 @@ class Elastica_Type implements Elastica_Searchable
 	protected $_index = null;
 
 	/**
-	 * @var string Object type
+	 * @var string Type name
 	 */
-	protected $_type = '';
+	protected $_name = '';
 
 	/**
 	 * Creates a new type object inside the given index
 	 *
 	 * @param Elastica_Index $index Index Object
-	 * @param string $type Type name
+	 * @param string $name Type name
 	 */
-	public function __construct(Elastica_Index $index, $type) {
+	public function __construct(Elastica_Index $index, $name) {
 		$this->_index = $index;
-		$this->_type = $type;
+		$this->_name = $name;
 	}
 
 	/**
@@ -75,13 +75,13 @@ class Elastica_Type implements Elastica_Searchable
 	/**
 	 * Uses _bulk to send documents to the server
 	 *
-	 * @param array $docs Array of Elastica_Document
+	 * @param Elastica_Document[] $docs Array of Elastica_Document
 	 * @link http://www.elasticsearch.com/docs/elasticsearch/rest_api/bulk/
 	 */
 	public function addDocuments(array $docs) {
 
 		foreach($docs as $doc) {
-			$doc->setType($this->getType());
+			$doc->setType($this->getName());
 		}
 
 		return $this->getIndex()->addDocuments($docs);
@@ -96,34 +96,39 @@ class Elastica_Type implements Elastica_Searchable
 	public function getDocument($id) {
 		$path = $id;
 
-		$result = $this->request($path, Elastica_Request::GET)->getData();
+		try {
+			$result = $this->request($path, Elastica_Request::GET)->getData();
+		} catch(Elastica_Exception_Response $e) {
+			throw new Elastica_Exception_NotFound('doc id ' . $id . ' not found');
+		}
 
 		if (empty($result['exists'])) {
 			throw new Elastica_Exception_NotFound('doc id ' . $id . ' not found');
 		}
 
 		$data = isset($result['_source'])?$result['_source']:array();
-		$document = new Elastica_Document($id, $data, $this->getType(),  $this->getIndex());
+		$document = new Elastica_Document($id, $data, $this->getName(),  $this->getIndex());
 		$document->setVersion($result['_version']);
 		return $document;
-	}
-
-	/**
-	 * @return string Type name
-	 */
-	public function getName() {
-		return $this->getType();
 	}
 
 	/**
 	 * Returns the type name
 	 *
 	 * @return string Type
+	 * @deprecated Use getName instead
 	 */
 	public function getType() {
-		return $this->_type;
+		return $this->getName();
 	}
 
+	/**
+	 * @return string Type name
+	 */
+	public function getName() {
+		return $this->_name;
+	}
+	
 	/**
 	 * Sets value type mapping for this type
 	 *
@@ -151,11 +156,15 @@ class Elastica_Type implements Elastica_Searchable
 
 	/**
 	 * @param string|array|Elastica_Query $query Array with all query data inside or a Elastica_Query object
+	 * @param int $limit OPTIONAL
 	 * @return Elastica_ResultSet ResultSet with all results inside
 	 * @see Elastica_Searchable::search
 	 */
-	public function search($query) {
+	public function search($query, $limit = 0) {
 		$query = Elastica_Query::create($query);
+		if ($limit) {
+			$query->setLimit($limit);
+		}
 		$path = '_search';
 
 		$response = $this->request($path, Elastica_Request::GET, $query->toArray());
@@ -197,6 +206,16 @@ class Elastica_Type implements Elastica_Searchable
 		}
 		return $this->request($id, Elastica_Request::DELETE);
 	}
+	
+	/**
+	 * Deletes the given list of ids from this type
+	 * 
+	 * @param array $ids
+	 * @return Elastica_Response Response object
+	 */
+	public function deleteIds(array $ids) {
+		return $this->getIndex()->getClient()->deleteIds($ids, $this->getIndex(), $this);
+	}
 
 	/**
 	 * Deletes entries in the db based on a query
@@ -233,7 +252,7 @@ class Elastica_Type implements Elastica_Searchable
 	 * @return Elastica_Response Response object
 	 */
 	public function request($path, $method, $data = array()) {
-		$path = $this->getType() . '/' . $path;
+		$path = $this->getName() . '/' . $path;
 		return $this->getIndex()->request($path, $method, $data);
 	}
 }

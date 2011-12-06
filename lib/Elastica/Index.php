@@ -144,20 +144,17 @@ class Elastica_Index implements Elastica_Searchable
 	 * Searchs in this index
 	 *
 	 * @param string|array|Elastica_Query $query Array with all query data inside or a Elastica_Query object
-     * @param Elastica_Param $typesParam   Search across types (http://www.elasticsearch.org/guide/reference/api/search/indices-types.html)
+	 * @param int $limit OPTIONAL
 	 * @return Elastica_ResultSet ResultSet with all results inside
 	 * @see Elastica_Searchable::search
 	 */
-	public function search($query, Elastica_Param $typesParam = null) {
+	public function search($query, $limit = 0) {
 		$query = Elastica_Query::create($query);
-        $path = '_search';
-
-        if ($typesParam != null) {
-            $types   = $typesParam->getParam('types');
-            if ($types != null) {
-                $path = join(',', $types) . '/_search';
-            }
-        }
+		
+		if ($limit) {
+			$query->setLimit($limit);
+		}
+		$path = '_search';
 
 		$response = $this->request($path, Elastica_Request::GET, $query->toArray());
 		return new Elastica_ResultSet($response);
