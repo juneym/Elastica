@@ -39,10 +39,13 @@ class Elastica_Client
 	protected $_config = array(
 		'host' => self::DEFAULT_HOST,
 		'port' => self::DEFAULT_PORT,
+		'path' => '',
+		'url' => null,
 		'transport' => self::DEFAULT_TRANSPORT,
 		'timeout' => self::TIMEOUT,
 		'headers' => array(),
 		'servers' => array(),
+		'curl' => array(),
 		'roundRobin' => false,
 		'log' => false,
 	);
@@ -81,11 +84,11 @@ class Elastica_Client
 			return $this->_config;
 		}
 
-		if (isset($this->_config[$key])) {
-			return $this->_config[$key];
+		if (!array_key_exists($key, $this->_config)) {
+			throw new Elastica_Exception_Invalid('Config key is not set: ' . $key);
 		}
 
-		return $this->_config;
+		return $this->_config[$key];
 	}
 
 	/**
@@ -202,6 +205,11 @@ class Elastica_Client
 			$parent = $doc->getParent();
 			if (!empty($parent)) {
 				$indexInfo['_parent'] = $parent;
+			}
+						
+			$percolate = $doc->getPercolate();
+			if (!empty($percolate)) {
+				$indexInfo['percolate'] = $percolate;
 			}
 
 			$params[] = array('index' => $indexInfo);

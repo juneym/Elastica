@@ -40,6 +40,19 @@ class Elastica_Cluster
 	}
 
 	/**
+	 * @return array List of index names
+	 */
+	public function getIndexNames() {
+		$metaData = $this->_data['metadata']['indices'];
+
+		$indices = array();
+		foreach ($metaData as $key => $value) {
+			$indices[] = $key;
+		}
+		return $indices;
+	}
+
+	/**
 	 * Returns the full state of the cluster
 	 *
 	 * @return array State array
@@ -97,6 +110,13 @@ class Elastica_Cluster
 	 */
 	public function getHealth($args = array()) {
 		throw new Exception('not implemented yet');
+	}
+
+	/**
+	 * @return Elastica_Cluster_Settings
+	 */
+	public function getSettings() {
+		return new Elastica_Cluster_Settings($this->getClient());
 	}
 
 	/**

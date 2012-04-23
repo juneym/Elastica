@@ -135,22 +135,29 @@ class Elastica_Request {
 
 		$servers = $this->getClient()->getConfig('servers');
 		
-		/*$dir = sys_get_temp_dir();
+		/*
+
+		// Integration of temp file
+		$dir = sys_get_temp_dir();
 		$name = 'elasticaServers.json';
 		$file = $dir . DIRECTORY_SEPARATOR . $name;
-		
-		error_log($file);
 
 		if (!file_exists($file)) {
 			file_put_contents($file, 'hh');
 			error_log(print_r($this->getClient()->getCluster(), true));
-		}*/
-		
+		}
+
+		*/
 		
 		if (empty($servers)) {
-			$response = $transport->exec($this->getClient()->getHost(), $this->getClient()->getPort());
+			$params = array(
+				'url' => $this->getClient()->getConfig('url'),
+				'host' => $this->getClient()->getHost(),
+				'port' => $this->getClient()->getPort(),
+				'path' => $this->getClient()->getConfig('path'),
+			);
+			$response = $transport->exec($params);
 		} else {
-			
 	
 			// Set server id for first request (round robin by default)
 			if (is_null(self::$_serverId)) {
@@ -161,7 +168,7 @@ class Elastica_Request {
 
 			$server = $servers[self::$_serverId];
 
-			$response = $transport->exec($server['host'], $server['port']);
+			$response = $transport->exec($server);
 		}
 		
 		$log = new Elastica_Log($this->getClient());

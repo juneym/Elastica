@@ -103,7 +103,7 @@ class Elastica_Query_QueryString extends Elastica_Query_Abstract
 	 * @return Elastica_Query_QueryString Current object
 	 */
 	public function setLowercaseExpandedTerms($lowercase = true) {
-		return $this->setParam('lowercase_expanced_terms', (bool) $lowercase);
+		return $this->setParam('lowercase_expanded_terms', (bool) $lowercase);
 	}
 
 	/**
@@ -227,6 +227,16 @@ class Elastica_Query_QueryString extends Elastica_Query_Abstract
 	public function setTieBraker($tieBreaker = 0) {
 		return $this->setParam('tie_breaker', (int) $tieBreaker);
 	}
+
+    /**
+     * Set a re-write condition. See https://github.com/elasticsearch/elasticsearch/issues/1186 for additional information
+     *
+     * @param string $rewrite
+     * @return Elastica_Param
+     */
+    public function setRewrite($rewrite = "") {
+    		return $this->setParam('rewrite', $rewrite);
+    }
 
 	/**
 	 * Converts query to array

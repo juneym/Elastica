@@ -3,11 +3,10 @@
  * Elastica search object
  *
  * @category Xodoa
- * @package Elastica
- * @author Nicolas Ruflin <spam@ruflin.com>
+ * @package  Elastica
+ * @author   Nicolas Ruflin <spam@ruflin.com>
  */
-class Elastica_Search
-{
+class Elastica_Search {
 	protected $_indices = array();
 	protected $_types = array();
 
@@ -45,20 +44,19 @@ class Elastica_Search
 		return $this;
 	}
 
-    /**
-     * Add array of indices at once
-     *
-     * @param array $indexes
-     * @return Elastica_Search
-     */
-    public function addIndices(array $indices = array())
-    {
-        foreach ($indices as $index) {
-            $this->addIndex($index);
-        }
+	/**
+	 * Add array of indices at once
+	 *
+	 * @param array $indices
+	 * @return Elastica_Search
+	 */
+	public function addIndices(array $indices = array()) {
+		foreach ($indices as $index) {
+			$this->addIndex($index);
+		}
 
-        return $this;
-    }
+		return $this;
+	}
 
 	/**
 	 * Adds a type to the current search
@@ -81,20 +79,19 @@ class Elastica_Search
 		return $this;
 	}
 
-    /**
-     * Add array of types
-     *
-     * @param array $types
-     * @return Elastica_Search
-     */
-    public function addTypes(array $types = array())
-    {
-        foreach ($types as $type) {
-            $this->addType($type);
-        }
+	/**
+	 * Add array of types
+	 *
+	 * @param array $types
+	 * @return Elastica_Search
+	 */
+	public function addTypes(array $types = array()) {
+		foreach ($types as $type) {
+			$this->addType($type);
+		}
 
-        return $this;
-    }
+		return $this;
+	}
 
 	/**
 	 * @return Elastica_Client Client object
@@ -155,21 +152,21 @@ class Elastica_Search
 		return $path . '/_search';
 	}
 
-	/**
-	 * Search in the set indices, types
-	 *
-	 * @param mixed $query
-	 * @param int $limit OPTIONAL
-	 * @return Elastica_ResultSet
-	 */
-	public function search($query, $limit = 0) {
-		$query = Elastica_Query::create($query);
-		if ($limit) {
-			$query->setLimit($limit);
-		}
-		$path = $this->getPath();
+    /**
+     * Search in the set indices, types
+     *
+     * @param mixed $query
+     * @param int   $limit OPTIONAL
+     * @return Elastica_ResultSet
+     */
+    public function search($query, $limit = null) {
+        $query = Elastica_Query::create($query);
+        if (!is_null($limit)) {
+            $query->setLimit($limit);
+        }
+        $path = $this->getPath();
 
-		$response = $this->getClient()->request($path, Elastica_Request::GET, $query->toArray());
-		return new Elastica_ResultSet($response);
-	}
+        $response = $this->getClient()->request($path, Elastica_Request::GET, $query->toArray());
+        return new Elastica_ResultSet($response);
+    }
 }

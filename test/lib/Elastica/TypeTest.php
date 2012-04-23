@@ -140,4 +140,89 @@ class Elastica_TypeTest extends Elastica_Test
 			$this->assertTrue(true);
 		}
 	}
+
+	public function testDeleteByQuery() {
+		$index = $this->_createIndex();
+		$type = new Elastica_Type($index, 'test');
+		$type->addDocument(new Elastica_Document(1, array('name' => 'ruflin nicolas')));
+		$type->addDocument(new Elastica_Document(2, array('name' => 'ruflin')));
+		$index->refresh();
+
+		$response = $index->search('ruflin*');
+		$this->assertEquals(2, $response->count());
+
+		$response = $index->search('nicolas');
+		$this->assertEquals(1, $response->count());
+
+		// Delete first document
+		$response = $type->deleteByQuery('nicolas');
+		$this->assertTrue($response->isOk());
+
+		$index->refresh();
+
+		// Makes sure, document is deleted
+		$response = $index->search('ruflin*');
+		$this->assertEquals(1, $response->count());
+
+		$response = $index->search('nicolas');
+		$this->assertEquals(0, $response->count());
+	}
+
+    /**
+     * Test to see if search Default Limit works
+     */
+    public function testLimitDefaultType()
+    {
+        $client = new Elastica_Client();
+        $index = $client->getIndex('zero');
+        $index->create(array('index' => array('number_of_shards' => 1, 'number_of_replicas' => 0)), true);
+
+        $docs = array();
+        $docs[] = new Elastica_Document(1, array('id' => 1, 'email' => 'test@test.com', 'username' => 'farrelley'));
+        $docs[] = new Elastica_Document(2, array('id' => 1, 'email' => 'test@test.com', 'username' => 'farrelley'));
+        $docs[] = new Elastica_Document(3, array('id' => 1, 'email' => 'test@test.com', 'username' => 'farrelley'));
+        $docs[] = new Elastica_Document(4, array('id' => 1, 'email' => 'test@test.com', 'username' => 'farrelley'));
+        $docs[] = new Elastica_Document(5, array('id' => 1, 'email' => 'test@test.com', 'username' => 'farrelley'));
+        $docs[] = new Elastica_Document(6, array('id' => 1, 'email' => 'test@test.com', 'username' => 'farrelley'));
+        $docs[] = new Elastica_Document(7, array('id' => 1, 'email' => 'test@test.com', 'username' => 'farrelley'));
+        $docs[] = new Elastica_Document(8, array('id' => 1, 'email' => 'test@test.com', 'username' => 'farrelley'));
+        $docs[] = new Elastica_Document(9, array('id' => 1, 'email' => 'test@test.com', 'username' => 'farrelley'));
+        $docs[] = new Elastica_Document(10, array('id' => 1, 'email' => 'test@test.com', 'username' => 'farrelley'));
+        $docs[] = new Elastica_Document(11, array('id' => 1, 'email' => 'test@test.com', 'username' => 'farrelley'));
+
+        $type = $index->getType('zeroType');
+        $type->addDocuments($docs);
+        $index->refresh();
+
+        // default results  (limit default is 10)
+        $resultSet = $type->search('farrelley');
+        $this->assertEquals(10, $resultSet->count());
+
+        // limit = 1
+        $resultSet = $type->search('farrelley', 1);
+        $this->assertEquals(1, $resultSet->count());
+    }
+
+    /**
+     * Test Delete of index type.  After delete will check for type mapping.
+     */
+    public function testDeleteType()
+    {
+        $index = $this->_createIndex();
+        $type = new Elastica_Type($index, 'test');
+        $type->addDocument(new Elastica_Document(1, array('name' => 'ruflin nicolas')));
+        $type->addDocument(new Elastica_Document(2, array('name' => 'ruflin')));
+        $index->refresh();
+
+        $type->delete();
+        try {
+            $type->getMapping();
+        }
+        catch (Elastica_Exception_Response $expected) {
+            $this->assertEquals("TypeMissingException[[elastica_test] type[test] missing]", $expected->getMessage());
+            return;
+        }
+
+        $this->fail('Mapping for type[test] in [elastica_test] still exists');
+    }
 }
